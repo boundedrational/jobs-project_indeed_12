@@ -12,7 +12,7 @@ require 'sanitize'
 
 
 queries=[]
-states=['California',  'Indiana',  'Montana',  'Oregon',  'Wisconsin', 'Connecticut', 'Colorado', 'Kansas'  ]
+states=['Iowa',  'Minnesota',  'Nevada',  'Utah',  'Virginia', 'Washington'  ]
 counts = Hash.new(0)
 
 queryurl="http://www.indeed.com/jobs?"
