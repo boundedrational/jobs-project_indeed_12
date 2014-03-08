@@ -58,7 +58,6 @@ for element in states
 
   while j<=resultslimit
     g=0        
-    if j==0
              while c<=resultslimit
                 long_url= "http://fullrss.net/a/http/rss.indeed.com/rss?q=&l=" + url_state + "&sort=date&start="+c.to_s()
                 puts long_url
@@ -95,24 +94,21 @@ for element in states
                   text.gsub!(/&lt.*?&gt;/im, "")
                   text.gsub!(/\[/im, "")
 
-                  title.gsub!(/.*-/im, "")
-                  title.gsub!(/.*=/im, "")
-  
-          
-                  title=title.to_s()
+
                   begin
                    ht[identification]<< long_content
                   rescue
+                  end
+                  begin
                    ht[identification]<< text
+                  rescue
                   end
                   tt[identification]<< timing
                   geo[identification]<< map
   
                 end
-                
 
              end
-       end
 
             
  
@@ -149,8 +145,8 @@ for element in states
  
     
    pageurl = helpurl+"&start="+j.to_s()
-    page = Nokogiri::HTML(open(URI::encode(pageurl)))
-    page.search("div[@itemtype='http://schema.org/JobPosting']").each do |node|
+   page = Nokogiri::HTML(open(URI::encode(pageurl)))
+   page.search("div[@itemtype='http://schema.org/JobPosting']").each do |node|
 
        if node.count > 0
 
@@ -191,7 +187,7 @@ for element in states
             "geo"=>'',
 
 
-          }
+           }
           
   
          
@@ -210,28 +206,29 @@ for element in states
                 data["geo"]=geo[ident]
                 
               end
-              s=''
 
               begin
-            
-                s= ScraperWiki::sqliteexecute("select long_description from swdata where id=(?)", [ident])
-                ScraperWiki::commit()
-              puts s              
-              k = s["data"]
-              k=k.to_s()
-              if k.length<10
-                puts "..."
-                ScraperWiki::save_sqlite(["id"], data)
-              end
+                 data.each do |record|
+                 if ScraperWiki.select("long_description from data where `id=(?)", [ident]).empty? 
+                   ScraperWiki.save_sqlite(['id'], record)
+                 else
+                  puts "Skipping already saved record " + record['title']
+                 end
+
               rescue
-                 puts"?!?!"
-                  ScraperWiki::save_sqlite(["id"], data)
-               
+                 
+                  SQLite3::Exception => e 
+                    puts "Exception occured"
+                    puts e
+    
+               end
+
+             
              end
 
            end
       end
-   end
+   
      j=j + resultsperpage
   end
 end
